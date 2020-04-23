@@ -39,6 +39,6 @@ This script has been used and has worked to our satisfaction under the following
  - PC with Windows 10
  - Microsoft Excel v2003, English language edition.
 
-The script does not support .fit files that spans over more than one date. E.g. if the recording starts
+The script does not support .fit files that span over more than one date. E.g. if the recording starts
 23:00 and ends 00:30 it will crash and the Excel file will not be usable.
 In the event of script crash, the original .fit file will not be damaged.
