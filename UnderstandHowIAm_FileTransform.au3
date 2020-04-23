@@ -65,12 +65,12 @@ Opt("GUIOnEventMode", 1)
 
 Global $g_idExit, $g_oInputField, $g_oOutputField, $g_oOutputFileNameLabel
 Global $g_oRawFolderField, $g_oXmlFolderField, $g_oExcelFolderField, $g_oGPSBabelFolderField
-Global $g_sChosenLanguage = "English" ;"Norsk"
+Global $g_sChosenLanguage = "English" ;"Norsk" If anything else than "Norsk" is chosen, English language is used
 
 Global $g_aMainPOS, $g_aConfigPOS, $g_oMain_GUI, $g_oConfig_GUI, $g_oChooseColumn_GUI
 
 Global $g_sCurrentFileName = ""
-Global $g_sIniFilename = "ForstaaMeg_config.ini"
+Global $g_sIniFilename = ""
 Global $g_sIniSection = "Folders"
 Global $g_sIniKey_Raw = "FIT-files folder"
 Global $g_sIniKey_XML = "XML-files folder"
@@ -488,7 +488,7 @@ Global Const $g_xlSlantDashDot = 13 ;Slanted dashes.
 Global $g_iFirstColumn_left = 20
 Global $g_iButtonHeight = 20
 Global $g_iButtonWidth = 90
-Global $g_iConfigButtonWidth = 100
+Global $g_iConfigButtonWidth = 110
 Global $g_iCtrlDistanceH = 10
 Global $g_iCtrlDistanceV = 20
 
@@ -583,6 +583,7 @@ EndFunc   ;==>_Main
 Func Load_Language()
 
 	If $g_sChosenLanguage = "Norsk" Then
+		$g_sIniFilename = "ForstaaMeg_config.ini"
 		$g_sLabel_Header_Text = "Forstå meg! - filomformer"
 		$g_sSetConfigurationBtn_Text = "Innstillinger"
 		$g_sChooseInputFileBtn_Text = "Velg inputfil"
@@ -599,6 +600,8 @@ Func Load_Language()
 		$g_sS1ReduceVariationWarning = "OBS: Prøv å begrense antallet ulike aktiviteter og hendelser / atferder."
 		$g_sS1ReduceVariationExample = "Eksempel: Kan ""rop"" og ""hyl"" slås sammen til én atferd?"
 
+		$g_sS2ReduceVariationWarning = "OBS: Prøv å begrense antallet ulike aktiviteter og hendelser / atferder."
+
 		$g_sS4AxisWarning = "OBS: Når du endrer tiden for utsnittet må du manuelt endre start og stopp for den horisontale aksen i grafen"
 		$g_sS5CorrectedTimeForMainTable_ColumnName = "Korrigert tid"
 		$g_sS5PulseForMainTable_ColumnName = "Puls"
@@ -610,10 +613,11 @@ Func Load_Language()
 		$g_sS5PulseForShortGraph_ColumnName = "Puls kort graf"
 
 	Else
+		$g_sIniFilename = "UnderstandHowIAm_config.ini"
 		$g_sLabel_Header_Text = "Understand how I am! - file transform"
 		$g_sSetConfigurationBtn_Text = "Settings"
 		$g_sChooseInputFileBtn_Text = "Choose input file"
-		$g_sLabel_Define_Text =  "Define a describing name to your excel file"
+		$g_sLabel_Define_Text =  "Define a describing name for your excel file"
 		$g_sChosenFileLabel_Text = "Chosen file name:      "
 		$g_sCreateExcelBtn_Text = "Create Excel file"
 
@@ -625,6 +629,8 @@ Func Load_Language()
 
 		$g_sS1ReduceVariationWarning = "OBS: Try to reduce the number of different activities and events / behaviors."
 		$g_sS1ReduceVariationExample = "Example: Could ""shout"" and ""scream"" be the decribed as the same as the same behavior?"
+
+		$g_sS2ReduceVariationWarning = "OBS: Try to reduce the number of different activities and events / behaviors."
 
 		$g_sS4AxisWarning = "OBS: When changing the selected time you must manually enter start and stop for the horizontal axis in the chart"
 		$g_sS5CorrectedTimeForMainTable_ColumnName = "Corrected time"
@@ -659,7 +665,7 @@ Func _SetConfiguration($l_iActiveTab)
 
 	$g_aMainPOS = WinGetPos($g_oMain_GUI)
 	Local $l_iFolderNameFieldWidth = 350
-	Local $l_iFolderInfoLabelWidth = 250
+	Local $l_iFolderInfoLabelWidth = 320
 	Local $l_oTabItemStoreFolders, $l_oTabItemGPSBabelFolder, $l_oConfigurationTab
 	Local $l_iGuiWidth = $g_iFirstColumn_left + $g_iConfigButtonWidth + $l_iFolderNameFieldWidth + $g_iCtrlDistanceH * 4 + $l_iFolderInfoLabelWidth
 	Local $l_iGuiHeight = $g_iFifthRowTop + $g_iButtonHeight + 10
@@ -1042,8 +1048,6 @@ Func _ControlOutputFileExistence()
 	Return 1
 EndFunc
 
-
-
 Func _Format_Sheet_1_Descriptions()
 	$g_oExcel.Application.ScreenUpdating = False ;Turn Screen Updating off
  	$g_oWorkbook.Sheets($g_sNameOfSheet_1_Descriptions).Columns($g_iS1ActivityDescriptionColumn).AutoFit
@@ -1306,10 +1310,17 @@ EndFunc   ;==>_Format_Sheet_2_Observations
 Func _Fill_Sheet_2_Observations($l_iNumberOfTrackpoints)
 	;$g_sNameOfSheet_2_Observations: Inserting time range header
 	$g_oExcel.Application.ScreenUpdating = False ;Turn Screen Updating off
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Måleperiode", _Excel_ColumnToLetter($g_iS2TimeSummaryHeaderColumn) & $g_iS2TimeSummaryHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Fra kl", _Excel_ColumnToLetter($g_iS2TimeSummaryFromColumn) & $g_iS2TimeSummaryHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Til kl", _Excel_ColumnToLetter($g_iS2TimeSummaryToColumn) & $g_iS2TimeSummaryHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Er måleperioden feil?  Legg til eller trekk fra timer her:", _Excel_ColumnToLetter($g_iS2HourCorrectionInstructionColumn) & $g_iS2HourCorrectionRow)
+	If $g_sChosenLanguage = "Norsk" Then
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Måleperiode", _Excel_ColumnToLetter($g_iS2TimeSummaryHeaderColumn) & $g_iS2TimeSummaryHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Fra kl", _Excel_ColumnToLetter($g_iS2TimeSummaryFromColumn) & $g_iS2TimeSummaryHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Til kl", _Excel_ColumnToLetter($g_iS2TimeSummaryToColumn) & $g_iS2TimeSummaryHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Er måleperioden feil?  Legg til eller trekk fra timer her:", _Excel_ColumnToLetter($g_iS2HourCorrectionInstructionColumn) & $g_iS2HourCorrectionRow)
+	Else
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Recorded period", _Excel_ColumnToLetter($g_iS2TimeSummaryHeaderColumn) & $g_iS2TimeSummaryHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "From", _Excel_ColumnToLetter($g_iS2TimeSummaryFromColumn) & $g_iS2TimeSummaryHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "To", _Excel_ColumnToLetter($g_iS2TimeSummaryToColumn) & $g_iS2TimeSummaryHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Is the recorded period wrong? Add or subtract an hour:", _Excel_ColumnToLetter($g_iS2HourCorrectionInstructionColumn) & $g_iS2HourCorrectionRow)
+	EndIf
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, $g_iS2HourCorrectionValue, _Excel_ColumnToLetter($g_iS2HourCorrectionInputColumn) & $g_iS2HourCorrectionRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "00:00:00", _Excel_ColumnToLetter($g_iS2TimeSummaryFromColumn) & $g_iS2TimeSummaryContentRow & ":" & _Excel_ColumnToLetter($g_iS2TimeSummaryToColumn) & $g_iS2TimeSummaryContentRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5FirstContentRow , _Excel_ColumnToLetter($g_iS2TimeSummaryFromColumn) & $g_iS2TimeSummaryContentRow)
@@ -1327,13 +1338,22 @@ Func _Fill_Sheet_2_Observations($l_iNumberOfTrackpoints)
 	Local $l_sActivityRange = _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivitySecondHeaderRow & ":" & _Excel_ColumnToLetter($g_iS2ActivityToColumn) & $g_iS2LastActivityContentRow-1
 	Local $l_xlSrcRange = 1
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Aktivitet", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivityFirstHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Nr", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivitySecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Beskrivelse", _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2ActivitySecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Fra klokken", _Excel_ColumnToLetter($g_iS2ActivityFromColumn) & $g_iS2ActivitySecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Til klokken", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn + 3) & $g_iS2ActivitySecondHeaderRow)
+	If $g_sChosenLanguage = "Norsk" Then
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Aktivitet", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivityFirstHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Beskrivelse", _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2ActivitySecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Fra klokken", _Excel_ColumnToLetter($g_iS2ActivityFromColumn) & $g_iS2ActivitySecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Til klokken", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn + 3) & $g_iS2ActivitySecondHeaderRow)
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "[Aktivitet: Velg fra nedtrekksmeny eller skriv]", _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2ActivityFirstContentRow & ":" & _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2LastActivityContentRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "[Aktivitet: Velg fra nedtrekksmeny eller skriv]", _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2ActivityFirstContentRow & ":" & _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2LastActivityContentRow)
+	Else
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Activity", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivityFirstHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Description", _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2ActivitySecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "From", _Excel_ColumnToLetter($g_iS2ActivityFromColumn) & $g_iS2ActivitySecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "To", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn + 3) & $g_iS2ActivitySecondHeaderRow)
+
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "[Activity: Choose from dropdown menu or write]", _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2ActivityFirstContentRow & ":" & _Excel_ColumnToLetter($g_iS2ActivityDescriptionColumn) & $g_iS2LastActivityContentRow)
+	EndIf
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "#", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivitySecondHeaderRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "1", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivityFirstContentRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "2", _Excel_ColumnToLetter($g_iS2ActivityFirstColumn) & $g_iS2ActivityFirstContentRow + 1)
 
@@ -1358,14 +1378,25 @@ Func _Fill_Sheet_2_Observations($l_iNumberOfTrackpoints)
 	;Creating Event Table
 	Local $l_sEventRange = _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventSecondHeaderRow & ":" & _Excel_ColumnToLetter($g_iS2EventToColumn) & $g_iS2LastEventContentRow-1
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Hendelse / atferd", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventFirstHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Nr", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventSecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Beskrivelse", _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2EventSecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Tidspunkt Start", _Excel_ColumnToLetter($g_iS2EventFromColumn) & $g_iS2EventSecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Fra klokken", _Excel_ColumnToLetter($g_iS2EventFromColumn) & $g_iS2EventSecondHeaderRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Tidspunkt Slutt (Valgfritt å endre)", _Excel_ColumnToLetter($g_iS2EventToColumn) & $g_iS2EventSecondHeaderRow)
+	If $g_sChosenLanguage = "Norsk" Then
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Hendelse / atferd", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventFirstHeaderRow)
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "[Hendelse/atferd: Velg fra nedtrekksmeny eller skriv]", _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2EventFirstContentRow & ":" & _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2LastEventContentRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Beskrivelse", _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2EventSecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Fra klokken", _Excel_ColumnToLetter($g_iS2EventFromColumn) & $g_iS2EventSecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Tidspunkt Slutt (Valgfritt å endre)", _Excel_ColumnToLetter($g_iS2EventToColumn) & $g_iS2EventSecondHeaderRow)
+
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "[Hendelse/atferd: Velg fra nedtrekksmeny eller skriv]", _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2EventFirstContentRow & ":" & _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2LastEventContentRow)
+	Else
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Events / Behavior", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventFirstHeaderRow)
+
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "Description", _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2EventSecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "From", _Excel_ColumnToLetter($g_iS2EventFromColumn) & $g_iS2EventSecondHeaderRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "To  (Optional to change)", _Excel_ColumnToLetter($g_iS2EventToColumn) & $g_iS2EventSecondHeaderRow)
+
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "[Events / Behavior: Choose from dropdown menu or write]", _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2EventFirstContentRow & ":" & _Excel_ColumnToLetter($g_iS2EventDescriptionColumn) & $g_iS2LastEventContentRow)
+
+	EndIf
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "#", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventSecondHeaderRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "1", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventFirstContentRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_2_Observations, "2", _Excel_ColumnToLetter($g_iS2EventFirstColumn) & $g_iS2EventFirstContentRow + 1)
 
@@ -1550,9 +1581,6 @@ Func _Format_Sheet_3_MainGraph()
 		.Borders.Weight = $xlThick
 		.Borders.Color = $g_iTableMainHeaderColorEvent
 	EndWith
-
-
-
 	$g_oExcel.Application.ScreenUpdating = True ;Turn Screen Updating on
 EndFunc   ;==>_Format_Sheet_3_MainGraph
 
@@ -1577,46 +1605,88 @@ Func _Fill_Sheet_3_MainGraph()
 	Local $l_iGraphSheetTableHeight = $g_iS3ActivityDistanceRow + 3
 	Local $l_aGraphSheetArray[$l_iGraphSheetTableHeight][$l_iGraphSheetTableWidth]
 
-	$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryHeaderColumn-1] = "Måleperiode"
-	$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryFromColumn-1] = "Fra kl"
-	$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryToColumn-1] = "Til kl"
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryHeaderColumn-1] = "Måleperiode"
+		$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryFromColumn-1] = "Fra kl"
+		$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryToColumn-1] = "Til kl"
+		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionIntroColumn-1] = "Velg oppløsning for hovedgrafen:"
 
-	$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionIntroColumn-1] = "Velg oppløsning for hovedgrafen:"
+		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionInputColumn-1] = "5"
+		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3TimeSummaryToColumn-1] = " sekunder"
+		$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsIntroColumn-1] = "Tilsvarer"
+		$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsValueColumn-1] = $l_sCreateTimeFormula
+		$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsText2Column-1] = "datapunkter"
+
+		$l_aGraphSheetArray[$g_iS3PulseSummaryHeaderRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Oppsummering puls "
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAverageRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Gjennomsnitt"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAverageRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_Average
+		$l_aGraphSheetArray[$g_iS3PulseSummaryStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Standardavvik"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_StDev
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusOneStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Gjennomsnitt pluss ett standardavvik"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusOneStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_AvPlusOneStDev
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusTwoStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] ="Gjennomsnitt pluss to standardavvik"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusTwoStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_AvPlusTwoStDev
+
+		$l_aGraphSheetArray[$g_iS3EventHeaderRow-1][$g_iS3EventIntroColumn-1] = "Hendelser"
+		$l_aGraphSheetArray[$g_iS3EventLevelRow -1][$g_iS3EventIntroColumn-1] = "Nivå for første markering"
+		$l_aGraphSheetArray[$g_iS3EventLevelRow-1][$g_iS3EventValueColumn-1] =$g_iS3Event_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS3EventDistanceRow-1][$g_iS3EventIntroColumn-1] ="Avstand mellom markeringer"
+		$l_aGraphSheetArray[$g_iS3EventDistanceRow-1][$g_iS3EventValueColumn-1] =$g_iS3Event_DeltaLevelValue
+
+		$l_aGraphSheetArray[$g_iS3ActivityHeaderRow-1][$g_iS3ActivityIntroColumn-1] = "Aktiviteter"
+		$l_aGraphSheetArray[$g_iS3ActivityLevelRow -1][$g_iS3ActivityIntroColumn-1] = "Nivå for første markering"
+		$l_aGraphSheetArray[$g_iS3ActivityLevelRow-1][$g_iS3ActivityValueColumn-1] =$g_iS3Activity_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS3ActivityDistanceRow-1][$g_iS3ActivityIntroColumn-1] ="Avstand mellom markeringer"
+		$l_aGraphSheetArray[$g_iS3ActivityDistanceRow-1][$g_iS3ActivityValueColumn-1] =$g_iS3Activity_DeltaLevelValue
+
+	Else
+		$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryHeaderColumn-1] = "Recorded period"
+		$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryFromColumn-1] = "From"
+		$l_aGraphSheetArray[$g_iS3TimeSummaryHeaderRow-1][$g_iS3TimeSummaryToColumn-1] = "To"
+		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionIntroColumn-1] = "Choose resolution for the main graph:"
+
+		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionInputColumn-1] = "5"
+		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3TimeSummaryToColumn-1] = " seconds"
+		$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsIntroColumn-1] = "Equals"
+		$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsValueColumn-1] = $l_sCreateTimeFormula
+		$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsText2Column-1] = "data points"
+
+		$l_aGraphSheetArray[$g_iS3PulseSummaryHeaderRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Summary: Heart Rate "
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAverageRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Average"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAverageRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_Average
+		$l_aGraphSheetArray[$g_iS3PulseSummaryStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Standard deviation"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_StDev
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusOneStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Average plus one standard deviation"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusOneStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_AvPlusOneStDev
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusTwoStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] ="Average plus two standard deviations"
+		$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusTwoStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_AvPlusTwoStDev
+
+		$l_aGraphSheetArray[$g_iS3EventHeaderRow-1][$g_iS3EventIntroColumn-1] = "Events / Behavior"
+		$l_aGraphSheetArray[$g_iS3EventLevelRow -1][$g_iS3EventIntroColumn-1] = "Level for first indicator"
+		$l_aGraphSheetArray[$g_iS3EventLevelRow-1][$g_iS3EventValueColumn-1] =$g_iS3Event_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS3EventDistanceRow-1][$g_iS3EventIntroColumn-1] ="Distance between indicators"
+		$l_aGraphSheetArray[$g_iS3EventDistanceRow-1][$g_iS3EventValueColumn-1] =$g_iS3Event_DeltaLevelValue
+
+		$l_aGraphSheetArray[$g_iS3ActivityHeaderRow-1][$g_iS3ActivityIntroColumn-1] = "Activities"
+		$l_aGraphSheetArray[$g_iS3ActivityLevelRow -1][$g_iS3ActivityIntroColumn-1] = "Level for first indicator"
+		$l_aGraphSheetArray[$g_iS3ActivityLevelRow-1][$g_iS3ActivityValueColumn-1] =$g_iS3Activity_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS3ActivityDistanceRow-1][$g_iS3ActivityIntroColumn-1] ="Distance between indicators"
+		$l_aGraphSheetArray[$g_iS3ActivityDistanceRow-1][$g_iS3ActivityValueColumn-1] =$g_iS3Activity_DeltaLevelValue
+	EndIf
+
+
 	If $g_bS3ShowResolutionWarning = True then
-		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionWarningColumn-1] = "NB Dersom du har for lav oppløsning kan det bli for mange datapunkter for Excel"
+		If $g_sChosenLanguage = "Norsk" Then
+			$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionWarningColumn-1] = "NB Dersom du har for lav oppløsning kan det bli for mange datapunkter for Excel"
+		Else
+			$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionWarningColumn-1] = ""
+		EndIf
 	Else
 		$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionWarningColumn-1] = " "
 	EndIf
-	$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3GraphTimeResolutionInputColumn-1] = "5"
-	$l_aGraphSheetArray[$g_iS3GraphTimeResolutionRow-1][$g_iS3TimeSummaryToColumn-1] = " sekunder"
-	$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsIntroColumn-1] = "Tilsvarer"
-	$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsValueColumn-1] = $l_sCreateTimeFormula
-	$l_aGraphSheetArray[$g_iS3GraphNumberOfDatapointsRow-1][$g_iS3GraphNumberOfDatapointsText2Column-1] = "datapunkter"
 
 	$l_aGraphSheetArray[$g_iS3TimeSummaryContentRow-1][$g_iS3TimeSummaryFromColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5FirstContentRow
 	$l_aGraphSheetArray[$g_iS3TimeSummaryContentRow-1][$g_iS3TimeSummaryToColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5LastContentRow
-
-	$l_aGraphSheetArray[$g_iS3PulseSummaryHeaderRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Oppsummering puls "
-	$l_aGraphSheetArray[$g_iS3PulseSummaryAverageRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Gjennomsnitt"
-	$l_aGraphSheetArray[$g_iS3PulseSummaryAverageRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_Average
-	$l_aGraphSheetArray[$g_iS3PulseSummaryStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Standardavvik"
-	$l_aGraphSheetArray[$g_iS3PulseSummaryStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_StDev
-	$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusOneStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] = "Gjennomsnitt pluss ett standardavvik"
-	$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusOneStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_AvPlusOneStDev
-	$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusTwoStDevRow-1][$g_iS3PulseSummaryIntroColumn-1] ="Gjennomsnitt pluss to standardavvik"
-	$l_aGraphSheetArray[$g_iS3PulseSummaryAvPlusTwoStDevRow-1][$g_iS3PulseSummaryValueColumn-1] = $l_sFormula_AvPlusTwoStDev
-
-	$l_aGraphSheetArray[$g_iS3EventHeaderRow-1][$g_iS3EventIntroColumn-1] = "Hendelser"
-	$l_aGraphSheetArray[$g_iS3EventLevelRow -1][$g_iS3EventIntroColumn-1] = "Nivå for første markering"
-	$l_aGraphSheetArray[$g_iS3EventLevelRow-1][$g_iS3EventValueColumn-1] =$g_iS3Event_FirstLevelValue
-	$l_aGraphSheetArray[$g_iS3EventDistanceRow-1][$g_iS3EventIntroColumn-1] ="Avstand mellom markeringer"
-	$l_aGraphSheetArray[$g_iS3EventDistanceRow-1][$g_iS3EventValueColumn-1] =$g_iS3Event_DeltaLevelValue
-
-	$l_aGraphSheetArray[$g_iS3ActivityHeaderRow-1][$g_iS3ActivityIntroColumn-1] = "Aktiviteter"
-	$l_aGraphSheetArray[$g_iS3ActivityLevelRow -1][$g_iS3ActivityIntroColumn-1] = "Nivå for første markering"
-	$l_aGraphSheetArray[$g_iS3ActivityLevelRow-1][$g_iS3ActivityValueColumn-1] =$g_iS3Activity_FirstLevelValue
-	$l_aGraphSheetArray[$g_iS3ActivityDistanceRow-1][$g_iS3ActivityIntroColumn-1] ="Avstand mellom markeringer"
-	$l_aGraphSheetArray[$g_iS3ActivityDistanceRow-1][$g_iS3ActivityValueColumn-1] =$g_iS3Activity_DeltaLevelValue
 
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_3_GraphMain, $l_aGraphSheetArray, _Excel_ColumnToLetter($g_iS3TimeSummaryHeaderColumn) & $g_iS3TimeSummaryHeaderRow)
 	$g_oExcel.Application.ScreenUpdating = True ;Turn Screen Updating on
@@ -1625,10 +1695,18 @@ EndFunc   ;==>_Fill_Sheet_3_MainGraph
 Func _Add_MainGraph_To_Sheet_2()
 	$g_oExcel.Application.ScreenUpdating = False ;Turn Screen Updating off
 
+	Local $l_sXValueRange, $l_asDataRange, $l_asDataName, $l_sChartAreaRange, $l_sChartHeading
+
 	;Legger til hovedgraf på side $g_sNameOfSheet_3_GraphMain
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), " ", "Lager hovedgraf")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), " ", "Lager hovedgraf")
+		$l_sChartHeading = 'Puls (Hjerteslag per minutt)'
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), " ", "Making main graph")
+		$l_sChartHeading = 'Heart Rate (beats per minute)'
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
-	Local $l_sXValueRange, $l_asDataRange, $l_asDataName, $l_sChartAreaRange
+
 
 
 	;Velger datapunkter fra $g_sNameOfSheet_5_CalculationsMainGraph
@@ -1643,7 +1721,7 @@ Func _Add_MainGraph_To_Sheet_2()
 	Local $l_iNumberOfColumnsToSpan = 25
 	$l_sChartAreaRange = _Excel_ColumnToLetter($g_iS3GraphFirstColumn) & $g_iS3GraphFirstRow & ":" & _Excel_ColumnToLetter($g_iS3GraphFirstColumn+$l_iNumberOfColumnsToSpan) & $g_iS3GraphFirstRow+$l_iNumberOfColumnsToSpan
 	;_XLChart_ChartCreate($oExcel, $vWorksheet, $iChartType, $sSizeByCells, $sChartName, $sXValueRange, $vDataRange, $vDataName[, $bShowLegend = True[, $sTitle = ""[, $sXTitle = ""[, $sYTitle = ""[, $sZTitle = ""[, $bShowDatatable = False[, $bScreenUpdate = False]]]]]]])
-	Local $l_oChart = _XLChart_ChartCreate($g_oExcel, $g_sNameOfSheet_3_GraphMain, $xlXYScatterLines,  $l_sChartAreaRange, 'Puls (Hjerteslag per minutt)', $l_sXValueRange, $l_asDataRange, $l_asDataName, True, 'Puls (Hjerteslag per minutt)')
+	Local $l_oChart = _XLChart_ChartCreate($g_oExcel, $g_sNameOfSheet_3_GraphMain, $xlXYScatterLines,  $l_sChartAreaRange, $l_sChartHeading, $l_sXValueRange, $l_asDataRange, $l_asDataName, True, $l_sChartHeading)
 	If @error Then
 		MsgBox($MB_SYSTEMMODAL, "Excel: _ChartCreate", "Error creating chart")
 	EndIf
@@ -1655,7 +1733,11 @@ Func _Add_MainGraph_To_Sheet_2()
 	Local $l_iLastTime = $g_iHourMax + $g_iMinuteMax / 60
 	$l_iLastTime = $l_iLastTime + 1 / 60 ; Set last point 1 minute after last trackpoint
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Justerer x-akse", "Lager hovedgraf ")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Justerer x-akse", "Lager hovedgraf ")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adjusting x-axis", "Making main graph ")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	_XLChart_AxisSet($l_oChart.Axes(1), $l_iFirstTime / 24, $l_iLastTime / 24)
@@ -1720,7 +1802,11 @@ Func _Add_MainGraph_To_Sheet_2()
 
 
 	;_XLChart_LegendSet($l_oChart, Default, $xlLeft,Default, Default, Default, Default, Default)
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer", "Lager hovedgraf ")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer", "Lager hovedgraf ")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Activity marks", "Making main graph ")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	$g_oExcel.Application.ScreenUpdating = False ;Turn Screen Updating off
 
@@ -1736,7 +1822,11 @@ Func _Add_MainGraph_To_Sheet_2()
 
 	$l_iCntr = 0
 	While $l_iCntr < $g_iNumberOfActivities
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfActivities, "Lager hovedgraf ")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfActivities, "Lager hovedgraf ")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Activity marks: " & $l_iCntr + 1 & "/" & $g_iNumberOfActivities, "Making main graph ")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 
 
@@ -1761,7 +1851,11 @@ Func _Add_MainGraph_To_Sheet_2()
 	WEnd
 	$g_oExcel.Application.ScreenUpdating = True ;Turn Screen Updating back on
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer", "Lager hovedgraf ")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer", "Lager hovedgraf ")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Event marks", "Making main graph ")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	;Legger til Hendelsessmerker
 	Local $l_oEvent_series, $l_iNumberOfVisibleEvents
@@ -1775,7 +1869,11 @@ Func _Add_MainGraph_To_Sheet_2()
 	Local $l_vEventNameRange
 
 	While $l_iCntr < $g_iNumberOfEvents
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfEvents, "Lager hovedgraf ")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfEvents, "Lager hovedgraf ")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Event marks: " & $l_iCntr + 1 & "/" & $g_iNumberOfEvents, "Making main graph ")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 
 		$l_vEventNameRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" & _Excel_ColumnToLetter($g_iS5Event_ForLong_ValueColumn) & $g_iS5Event_ForLong_FirstHeaderRow + ($l_iCntr*$g_iS5Event_ForLong_NumberOfRowsInSubTable)
@@ -1824,54 +1922,99 @@ Func _Fill_Sheet_4_GraphSelection()
 	Local $l_iGraphSheetTableHeight = $g_iS4ActivityDistanceRow + 3
 	Local $l_aGraphSheetArray[$l_iGraphSheetTableHeight][$l_iGraphSheetTableWidth]
 
-	$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryHeaderColumn-1] = "Måleperiode"
-	$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryFromColumn-1] = "Fra kl"
-	$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryToColumn-1] = "Til kl"
+	IF $g_sChosenLanguage = "Norsk" Then
+		$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryHeaderColumn-1] = "Måleperiode"
+		$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryFromColumn-1] = "Fra kl"
+		$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryToColumn-1] = "Til kl"
+		$l_aGraphSheetArray[$g_iS4GraphTimeSelectionRow-1][$g_iS4GraphTimeSelectionIntroColumn-1] = "Velg periode for grafutsnitt"
+		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionIntroColumn-1] = "Velg oppløsning for hovedgrafen:"
+		If $g_bS4ShowResolutionWarning = True Then
+			$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionWarningColumn-1] = "NB Dersom du har for lav oppløsning kan det bli for mange datapunkter for Excel"
+		Else
+			$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionWarningColumn-1] = " "
+		EndIf
+		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionInputColumn-1] = "1"
+		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4TimeSummaryToColumn-1] = " sekunder"
+		$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsIntroColumn-1] = "Tilsvarer"
+		$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsValueColumn-1] = $l_sCreateTimeFormula
+		$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsText2Column-1] = "datapunkter"
 
-	$l_aGraphSheetArray[$g_iS4GraphTimeSelectionRow-1][$g_iS4GraphTimeSelectionIntroColumn-1] = "Velg periode for grafutsnitt"
+		$l_aGraphSheetArray[$g_iS4TimeSummaryContentRow-1][$g_iS4TimeSummaryFromColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5FirstContentRow
+		$l_aGraphSheetArray[$g_iS4TimeSummaryContentRow-1][$g_iS4TimeSummaryToColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5LastContentRow
 
-	$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionIntroColumn-1] = "Velg oppløsning for hovedgrafen:"
-	If $g_bS4ShowResolutionWarning = True Then
-		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionWarningColumn-1] = "NB Dersom du har for lav oppløsning kan det bli for mange datapunkter for Excel"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryHeaderRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Oppsummering puls "
+		$l_aGraphSheetArray[$g_iS4PulseSummaryHeaderExtraInfoRow -1][$g_iS4PulseSummaryIntroColumn-1] = "(Gjelder valgt utsnitt)"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAverageRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Gjennomsnitt"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAverageRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_Average
+		$l_aGraphSheetArray[$g_iS4PulseSummaryStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Standardavvik"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_StDev
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusOneStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Gjennomsnitt pluss ett standardavvik"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusOneStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_AvPlusOneStDev
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusTwoStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] ="Gjennomsnitt pluss to standardavvik"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusTwoStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_AvPlusTwoStDev
+
+		$l_aGraphSheetArray[$g_iS4EventHeaderRow-1][$g_iS4EventIntroColumn-1] = "Hendelser"
+		$l_aGraphSheetArray[$g_iS4EventLevelRow -1][$g_iS4EventIntroColumn-1] = "Nivå for første markering"
+		$l_aGraphSheetArray[$g_iS4EventLevelRow-1][$g_iS4EventValueColumn-1] =$g_iS4Event_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS4EventDistanceRow-1][$g_iS4EventIntroColumn-1] ="Avstand mellom markeringer"
+		$l_aGraphSheetArray[$g_iS4EventDistanceRow-1][$g_iS4EventValueColumn-1] =$g_iS4Event_DeltaLevelValue
+
+		$l_aGraphSheetArray[$g_iS4ActivityHeaderRow-1][$g_iS4ActivityIntroColumn-1] = "Aktiviteter"
+		$l_aGraphSheetArray[$g_iS4ActivityLevelRow -1][$g_iS4ActivityIntroColumn-1] = "Nivå for første markering"
+		$l_aGraphSheetArray[$g_iS4ActivityLevelRow-1][$g_iS4ActivityValueColumn-1] =$g_iS4Activity_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS4ActivityDistanceRow-1][$g_iS4ActivityIntroColumn-1] ="Avstand mellom markeringer"
+		$l_aGraphSheetArray[$g_iS4ActivityDistanceRow-1][$g_iS4ActivityValueColumn-1] =$g_iS4Activity_DeltaLevelValue
+
+
+		$l_aGraphSheetArray[$g_sS4AxisWarningRow-1][$g_iS4AxisWarningColumn-1] = $g_sS4AxisWarning
+		$l_aGraphSheetArray[$g_sS4AxisInfoRow-1][$g_iS4AxisStartColumn-1] = "Akse start"
+		$l_aGraphSheetArray[$g_sS4AxisInfoRow-1][$g_iS4AxisStopColumn-1] = "Akse stopp"
 	Else
+		$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryHeaderColumn-1] = "Recorded period"
+		$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryFromColumn-1] = "From"
+		$l_aGraphSheetArray[$g_iS4TimeSummaryHeaderRow-1][$g_iS4TimeSummaryToColumn-1] = "To"
+		$l_aGraphSheetArray[$g_iS4GraphTimeSelectionRow-1][$g_iS4GraphTimeSelectionIntroColumn-1] = "Selected time period for graph range"
+		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionIntroColumn-1] = "Choose resolution for the selected graph range:"
+
 		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionWarningColumn-1] = " "
+
+		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionInputColumn-1] = "1"
+		$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4TimeSummaryToColumn-1] = " seconds"
+		$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsIntroColumn-1] = "Equals"
+		$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsValueColumn-1] = $l_sCreateTimeFormula
+		$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsText2Column-1] = "data points"
+
+		$l_aGraphSheetArray[$g_iS4TimeSummaryContentRow-1][$g_iS4TimeSummaryFromColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5FirstContentRow
+		$l_aGraphSheetArray[$g_iS4TimeSummaryContentRow-1][$g_iS4TimeSummaryToColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5LastContentRow
+
+		$l_aGraphSheetArray[$g_iS4PulseSummaryHeaderRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Summary: Heart Rate"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryHeaderExtraInfoRow -1][$g_iS4PulseSummaryIntroColumn-1] = "(For selected time range)"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAverageRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Average"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAverageRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_Average
+		$l_aGraphSheetArray[$g_iS4PulseSummaryStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Standard deviation"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_StDev
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusOneStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Average plus one standard deviation"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusOneStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_AvPlusOneStDev
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusTwoStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] ="Average plus two standard deviations"
+		$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusTwoStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_AvPlusTwoStDev
+
+		$l_aGraphSheetArray[$g_iS4EventHeaderRow-1][$g_iS4EventIntroColumn-1] = "Events / Behavior"
+		$l_aGraphSheetArray[$g_iS4EventLevelRow -1][$g_iS4EventIntroColumn-1] = "Level for first indicator"
+		$l_aGraphSheetArray[$g_iS4EventLevelRow-1][$g_iS4EventValueColumn-1] =$g_iS4Event_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS4EventDistanceRow-1][$g_iS4EventIntroColumn-1] ="Distance between indicators"
+		$l_aGraphSheetArray[$g_iS4EventDistanceRow-1][$g_iS4EventValueColumn-1] =$g_iS4Event_DeltaLevelValue
+
+		$l_aGraphSheetArray[$g_iS4ActivityHeaderRow-1][$g_iS4ActivityIntroColumn-1] = "Activities"
+		$l_aGraphSheetArray[$g_iS4ActivityLevelRow -1][$g_iS4ActivityIntroColumn-1] = "Level for first indicator"
+		$l_aGraphSheetArray[$g_iS4ActivityLevelRow-1][$g_iS4ActivityValueColumn-1] =$g_iS4Activity_FirstLevelValue
+		$l_aGraphSheetArray[$g_iS4ActivityDistanceRow-1][$g_iS4ActivityIntroColumn-1] ="Distance between indicators"
+		$l_aGraphSheetArray[$g_iS4ActivityDistanceRow-1][$g_iS4ActivityValueColumn-1] =$g_iS4Activity_DeltaLevelValue
+
+
+		$l_aGraphSheetArray[$g_sS4AxisWarningRow-1][$g_iS4AxisWarningColumn-1] = $g_sS4AxisWarning
+		$l_aGraphSheetArray[$g_sS4AxisInfoRow-1][$g_iS4AxisStartColumn-1] = "Axis start"
+		$l_aGraphSheetArray[$g_sS4AxisInfoRow-1][$g_iS4AxisStopColumn-1] = "Axis stop"
 	EndIf
-	$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4GraphTimeResolutionInputColumn-1] = "1"
-	$l_aGraphSheetArray[$g_iS4GraphTimeResolutionRow-1][$g_iS4TimeSummaryToColumn-1] = " sekunder"
-	$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsIntroColumn-1] = "Tilsvarer"
-	$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsValueColumn-1] = $l_sCreateTimeFormula
-	$l_aGraphSheetArray[$g_iS4GraphNumberOfDatapointsRow-1][$g_iS4GraphNumberOfDatapointsText2Column-1] = "datapunkter"
-
-	$l_aGraphSheetArray[$g_iS4TimeSummaryContentRow-1][$g_iS4TimeSummaryFromColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5FirstContentRow
-	$l_aGraphSheetArray[$g_iS4TimeSummaryContentRow-1][$g_iS4TimeSummaryToColumn-1] = "='"& $g_sNameOfSheet_5_CalculationsMainGraph&"'!"&_Excel_ColumnToLetter($g_iS5Column_CorrectedTime)&$g_iS5LastContentRow
-
-	$l_aGraphSheetArray[$g_iS4PulseSummaryHeaderRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Oppsummering puls "
-	$l_aGraphSheetArray[$g_iS4PulseSummaryHeaderExtraInfoRow -1][$g_iS4PulseSummaryIntroColumn-1] = "(Gjelder valgt utsnitt)"
-	$l_aGraphSheetArray[$g_iS4PulseSummaryAverageRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Gjennomsnitt"
-	$l_aGraphSheetArray[$g_iS4PulseSummaryAverageRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_Average
-	$l_aGraphSheetArray[$g_iS4PulseSummaryStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Standardavvik"
-	$l_aGraphSheetArray[$g_iS4PulseSummaryStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_StDev
-	$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusOneStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] = "Gjennomsnitt pluss ett standardavvik"
-	$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusOneStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_AvPlusOneStDev
-	$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusTwoStDevRow-1][$g_iS4PulseSummaryIntroColumn-1] ="Gjennomsnitt pluss to standardavvik"
-	$l_aGraphSheetArray[$g_iS4PulseSummaryAvPlusTwoStDevRow-1][$g_iS4PulseSummaryValueColumn-1] = $l_sFormula_AvPlusTwoStDev
-
-	$l_aGraphSheetArray[$g_iS4EventHeaderRow-1][$g_iS4EventIntroColumn-1] = "Hendelser"
-	$l_aGraphSheetArray[$g_iS4EventLevelRow -1][$g_iS4EventIntroColumn-1] = "Nivå for første markering"
-	$l_aGraphSheetArray[$g_iS4EventLevelRow-1][$g_iS4EventValueColumn-1] =$g_iS4Event_FirstLevelValue
-	$l_aGraphSheetArray[$g_iS4EventDistanceRow-1][$g_iS4EventIntroColumn-1] ="Avstand mellom markeringer"
-	$l_aGraphSheetArray[$g_iS4EventDistanceRow-1][$g_iS4EventValueColumn-1] =$g_iS4Event_DeltaLevelValue
-
-	$l_aGraphSheetArray[$g_iS4ActivityHeaderRow-1][$g_iS4ActivityIntroColumn-1] = "Aktiviteter"
-	$l_aGraphSheetArray[$g_iS4ActivityLevelRow -1][$g_iS4ActivityIntroColumn-1] = "Nivå for første markering"
-	$l_aGraphSheetArray[$g_iS4ActivityLevelRow-1][$g_iS4ActivityValueColumn-1] =$g_iS4Activity_FirstLevelValue
-	$l_aGraphSheetArray[$g_iS4ActivityDistanceRow-1][$g_iS4ActivityIntroColumn-1] ="Avstand mellom markeringer"
-	$l_aGraphSheetArray[$g_iS4ActivityDistanceRow-1][$g_iS4ActivityValueColumn-1] =$g_iS4Activity_DeltaLevelValue
-
-
-	$l_aGraphSheetArray[$g_sS4AxisWarningRow-1][$g_iS4AxisWarningColumn-1] = $g_sS4AxisWarning
-	$l_aGraphSheetArray[$g_sS4AxisInfoRow-1][$g_iS4AxisStartColumn-1] = "Akse start"
-	$l_aGraphSheetArray[$g_sS4AxisInfoRow-1][$g_iS4AxisStopColumn-1] = "Akse stopp"
 
 	;=(HOUR(D3)+MINUTE(D3)/60)/24
 	Local $l_sAxisFormula = "=(HOUR(" & _Excel_ColumnToLetter($g_iS4GraphTimeSelectionFromColumn) & $g_iS4GraphTimeSelectionRow &")+MINUTE("& _
@@ -2083,10 +2226,21 @@ EndFunc   ;==>_Format_Sheet_4_GraphSelection
 Func _Add_SelectionGraph_To_Sheet_3()
 	$g_oExcel.Application.ScreenUpdating = False ;Turn Screen Updating off
 
+
+	Local $l_sXValueRange, $l_asDataRange, $l_asDataName, $l_sTextContainter1, $l_sTextContainter2
+
 	;Legger til utdragsgraf på side $g_sNameOfSheet_4_GraphSelection
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), " ", "Lager utdragsgraf")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), " ", "Lager utdragsgraf")
+		$l_sChartHeading = 'Puls (Hjerteslag per minutt)'
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), " ", "Making graph selection ")
+		$l_sChartHeading = 'Heart Rate (beats per minute)'
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
-	Local $l_sXValueRange, $l_asDataRange, $l_asDataName
+
+
+
 
 
 	;Velger datapunkter fra $g_sNameOfSheet_5_CalculationsMainGraph
@@ -2101,7 +2255,7 @@ Func _Add_SelectionGraph_To_Sheet_3()
 	Local $l_iNumberOfColumnsToSpan = 25
 	$l_sChartAreaRange = _Excel_ColumnToLetter($g_iS4GraphFirstColumn) & $g_iS4GraphFirstRow & ":" & _Excel_ColumnToLetter($g_iS4GraphFirstColumn+$l_iNumberOfColumnsToSpan) & $g_iS4GraphFirstRow+$l_iNumberOfColumnsToSpan
 	;_XLChart_ChartCreate($oExcel, $vWorksheet, $iChartType, $sSizeByCells, $sChartName, $sXValueRange, $vDataRange, $vDataName[, $bShowLegend = True[, $sTitle = ""[, $sXTitle = ""[, $sYTitle = ""[, $sZTitle = ""[, $bShowDatatable = False[, $bScreenUpdate = False]]]]]]])
-	Local $l_oChart = _XLChart_ChartCreate($g_oExcel, $g_sNameOfSheet_4_GraphSelection, $xlXYScatterLines,  $l_sChartAreaRange, 'Puls (Hjerteslag per minutt)', $l_sXValueRange, $l_asDataRange, $l_asDataName, True, 'Puls (Hjerteslag per minutt)')
+	Local $l_oChart = _XLChart_ChartCreate($g_oExcel, $g_sNameOfSheet_4_GraphSelection, $xlXYScatterLines,  $l_sChartAreaRange, $l_sChartHeading, $l_sXValueRange, $l_asDataRange, $l_asDataName, True, $l_sChartHeading)
 	If @error Then
 		MsgBox($MB_SYSTEMMODAL, "Excel: _ChartCreate", "Error creating chart")
 	EndIf
@@ -2113,7 +2267,11 @@ Func _Add_SelectionGraph_To_Sheet_3()
 	Local $l_iLastTime = $g_iS4SelectedTo_Hour + $g_iS4SelectedTo_Minute / 60
 	$l_iLastTime = $l_iLastTime + 1 / 60 ; Set last point 1 minute after last trackpoint
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Justerer x-akse", "Lager utdragsgraf ")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Justerer x-akse", "Lager utdragsgraf ")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adjusting x-axis", "Making graph selection ")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	_XLChart_AxisSet($l_oChart.Axes(1), $l_iFirstTime / 24, $l_iLastTime / 24)
@@ -2178,7 +2336,12 @@ Func _Add_SelectionGraph_To_Sheet_3()
 
 
 	;_XLChart_LegendSet($l_oChart, Default, $xlLeft,Default, Default, Default, Default, Default)
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer", "Lager utdragsgraf ")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer", "Lager utdragsgraf ")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Activity marks", "Making graph selection ")
+	EndIf
+
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	$g_oExcel.Application.ScreenUpdating = False ;Turn Screen Updating off
 
@@ -2194,7 +2357,12 @@ Func _Add_SelectionGraph_To_Sheet_3()
 
 	$l_iCntr = 0
 	While $l_iCntr < $g_iNumberOfActivities
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfActivities, "Lager utdragsgraf ")
+
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Aktivitetsmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfActivities, "Lager utdragsgraf ")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Activity marks: " & $l_iCntr + 1 & "/" & $g_iNumberOfActivities, "Making graph selection ")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 
 
@@ -2203,10 +2371,7 @@ Func _Add_SelectionGraph_To_Sheet_3()
 		$l_vActivityDataRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" &_Excel_ColumnToLetter($g_iS5Activity_ForShort_ValueColumn)& $g_iS5Activity_ForShort_FirstContentRow +($l_iCntr*$g_iS5Activity_ForShort_NumberOfRowsInSubTable) &":"& _Excel_ColumnToLetter($g_iS5Activity_ForShort_ValueColumn)& $g_iS5Activity_ForShort_FirstContentRow +($l_iCntr*$g_iS5Activity_ForShort_NumberOfRowsInSubTable) +1
 
 
-		;$l_vActivityDataRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" & _Excel_ColumnToLetter($g_iS5Activity_ForShortFirstContentColumn + $l_iCntr) & $g_iS5FirstContentRow & ":" & _Excel_ColumnToLetter($g_iS5Activity_ForShortFirstContentColumn + $l_iCntr) & $g_iS5LastMinuteIntervalRow
-		;$l_vActivityNameRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" & _Excel_ColumnToLetter($g_iS5Activity_ForShortFirstContentColumn + $l_iCntr) & $g_iS5Calculations_ActivityNameRow
 		$l_oActivity_series = _XLChart_SeriesAdd($l_oChart, $l_sXActivityValueRange, $l_vActivityDataRange, $l_vActivityNameRange)
-		; _XLChart_SeriesAdd($oChart, $sXValueRange, $vDataRange, $vDataName)
 
 		With $l_oActivity_series
 			.Smooth = False
@@ -2223,8 +2388,11 @@ Func _Add_SelectionGraph_To_Sheet_3()
 	$g_oExcel.Application.ScreenUpdating = True ;Turn Screen Updating back on
 
 
-
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer", "Lager utdragsgraf ")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer", "Lager utdragsgraf ")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Event marks", "Making graph selection ")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	;Legger til Hendelsessmerker
 	Local $l_oEvent_series, $l_iNumberOfVisibleEvents
@@ -2238,10 +2406,13 @@ Func _Add_SelectionGraph_To_Sheet_3()
 	Local $l_vEventNameRange
 
 	While $l_iCntr < $g_iNumberOfEvents
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfEvents, "Lager utdragsgraf ")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger inn Hendelsesmarkeringer: " & $l_iCntr + 1 & "/" & $g_iNumberOfEvents, "Lager utdragsgraf ")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Adding Event marks: " & $l_iCntr + 1 & "/" & $g_iNumberOfEvents, "Making graph selection ")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
-		;$l_vEventDataRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" & _Excel_ColumnToLetter($g_iS5Event_ForShortFirstContentColumn + $l_iCntr) & $g_iS5FirstContentRow & ":" & _Excel_ColumnToLetter($g_iS5Event_ForShortFirstContentColumn + $l_iCntr) & $g_iS5LastSecondIntervalRow
-		;$l_vEventNameRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" & _Excel_ColumnToLetter($g_iS5Event_ForShortFirstContentColumn + $l_iCntr) & $g_iS5Event_ForShortNameRow
+
 
 		$l_vEventNameRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" & _Excel_ColumnToLetter($g_iS5Event_ForShort_ValueColumn) & $g_iS5Event_ForShort_FirstHeaderRow + ($l_iCntr*$g_iS5Event_ForShort_NumberOfRowsInSubTable)
 		$l_sXEventValueRange = "='" & $g_sNameOfSheet_5_CalculationsMainGraph & "'!" &_Excel_ColumnToLetter($g_iS5Event_ForShort_TimeColumn)& $g_iS5Event_ForShort_FirstContentRow +($l_iCntr*$g_iS5Event_ForShort_NumberOfRowsInSubTable) &":"& _Excel_ColumnToLetter($g_iS5Event_ForShort_TimeColumn)& $g_iS5Event_ForShort_FirstContentRow +($l_iCntr*$g_iS5Event_ForShort_NumberOfRowsInSubTable) +1
@@ -2274,7 +2445,11 @@ Func OnCreateExcel()
 	;Creating Com error handler
 	Local $oMyError = ObjEvent("AutoIt.Error", "MyErrFunc")
 
-	ProgressOn("Forstå meg: Framdrift", "Omgjør rådata til XML", "Venter på GPSBabel", -2, -1, $DLG_MOVEABLE)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressOn("Forstå meg: Framdrift", "Omgjør rådata til XML", "Venter på GPSBabel", -2, -1, $DLG_MOVEABLE)
+	Else
+		ProgressOn("Understand How I Am: Progress", "Transforming raw data to XML", "Waiting for GPSBabel", -2, -1, $DLG_MOVEABLE)
+	EndIf
 	Local $l_iResult, $l_iCntr
 
 	$l_iResult = _ControlFolderPaths()
@@ -2301,7 +2476,12 @@ Func OnCreateExcel()
 		$g_iProgressCounter = 0
  		Return SetError($l_iResult, @error, 0)
  	EndIf
- 	ProgressSet (100*(Round(($g_iProgressCounter +1) /$g_iProgressMaxCount,2)) , "Fra Garmin .fit fil til .xml fil" , "Omgjør data")
+
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet (100*(Round(($g_iProgressCounter +1) /$g_iProgressMaxCount,2)) , "Fra Garmin .fit fil til .xml fil" , "Omgjør data")
+	Else
+		ProgressSet (100*(Round(($g_iProgressCounter +1) /$g_iProgressMaxCount,2)) , "From Garmin .fit file to .xml fil" , "Transforming data")
+	EndIf
  	$g_iProgressCounter = $g_iProgressCounter +1
  	Sleep(2000)
 
@@ -2310,56 +2490,97 @@ Func OnCreateExcel()
 	Local $l_aPathSplit = _PathSplit($l_sSourceFileXML, $l_sDrive, $sDir, $sFileName, $sExtension)
 	Local $l_sXLSX = $g_sIniValue_ExcelFolder & "\" & $g_sCurrentFileName & ".xlsx"
 
-
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Åpner Excel")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Åpner Excel")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Opening Excel")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	$g_oExcel = _Excel_Open(True)
 
 	If @error Then
-		MsgBox($MB_SYSTEMMODAL, "Excel UDF: Åpne Excel", "FEIL ved opprettelse av EXCEL object" & @CRLF & " @error = " & @error & ", @extended = " & @extended)
+		If $g_sChosenLanguage = "Norsk" Then
+			MsgBox($MB_SYSTEMMODAL, "Excel UDF: Åpne Excel", "FEIL ved opprettelse av EXCEL object" & @CRLF & " @error = " & @error & ", @extended = " & @extended)
+		Else
+			MsgBox($MB_SYSTEMMODAL, "Excel UDF: Open Excel", "ERROR creating EXCEL object" & @CRLF & " @error = " & @error & ", @extended = " & @extended)
+		EndIf
 	Else
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Suksess", "Åpner Excel")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Suksess", "Åpner Excel")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Success", "Opening Excel")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 	EndIf
 	Sleep(5000)
 
-	ProgressSet(100 * (Round($g_iProgressCounter / $g_iProgressMaxCount, 2)), "Henter inn målinger", "Oppretter Excel arbeidsbok")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Henter inn målinger", "Oppretter Excel arbeidsbok")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Collecting registered data", "Creating Excel workbook")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	Local $xlXmlLoadImportToList = 2 ; Places the contents of the XML data file in an XML table
 	$g_oWorkbook = $g_oExcel.Workbooks.OpenXML($l_sSourceFileXML, Default, $xlXmlLoadImportToList)
 	If @error Then
-		MsgBox($MB_SYSTEMMODAL, "Excel UDF: Opprette arbeidsbok Excel", "FEIL ved opprettelse av EXCEL arbeidsbok" & @CRLF & " @error = " & @error & ", @extended = " & @extended)
+		If $g_sChosenLanguage = "Norsk" Then
+			MsgBox($MB_SYSTEMMODAL, "Excel UDF: Opprette arbeidsbok Excel", "FEIL ved opprettelse av EXCEL arbeidsbok" & @CRLF & " @error = " & @error & ", @extended = " & @extended)
+		Else
+			MsgBox($MB_SYSTEMMODAL, "Excel UDF: Create Excel workbook", "ERROR creating EXCEL workbook" & @CRLF & " @error = " & @error & ", @extended = " & @extended)
+		EndIf
 	Else
-		ProgressSet(100 * (Round($g_iProgressCounter / $g_iProgressMaxCount, 2)), "Suksess", "Oppretter Excel arbeidsbok")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round($g_iProgressCounter / $g_iProgressMaxCount, 2)), "Suksess", "Oppretter Excel arbeidsbok")
+		Else
+			ProgressSet(100 * (Round($g_iProgressCounter / $g_iProgressMaxCount, 2)), "Success",  "Creating Excel workbook")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
-		;MsgBox($MB_SYSTEMMODAL, "Excel UDF: Opprette arbeidsbok Excel", "SUKSESS ved opprettelse av EXCEL arbeidsbok")
 	EndIf
 	Sleep(2000)
-
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok:" & @CRLF & $g_sCurrentFileName & ".xlsx", "Lagrer Excel arbeidsbok")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok:" & @CRLF & $g_sCurrentFileName & ".xlsx", "Lagrer Excel arbeidsbok")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook:" & @CRLF & $g_sCurrentFileName & ".xlsx", "Saving Excel workbook")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	$l_iResult = _Excel_BookSaveAs($g_oWorkbook, $l_sXLSX, $xlWorkbookDefault, True)
 
 	If @error Then
-		MsgBox($MB_SYSTEMMODAL, "Excel UDF: Lagre excelfil", "FEIL saving  workbook. Filnavn:" & @CRLF  & $l_sXLSX & @CRLF & "@error = " & @error & ", @extended = " & @extended)
+		If $g_sChosenLanguage = "Norsk" Then
+			MsgBox($MB_SYSTEMMODAL, "Excel UDF: Lagre excelfil", "FEIL under lagring av arbeidsbok. Filnavn:" & @CRLF  & $l_sXLSX & @CRLF & "@error = " & @error & ", @extended = " & @extended)
+		Else
+			MsgBox($MB_SYSTEMMODAL, "Excel UDF: Save Excel file", "ERROR saving workbook. Fils name:" & @CRLF  & $l_sXLSX & @CRLF & "@error = " & @error & ", @extended = " & @extended)
+		EndIf
 	Else
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &"Suksess", "Lagrer Excel arbeidsbok")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &"Suksess", "Lagrer Excel arbeidsbok")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &"Success", "Saving Excel workbook")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
-		;MsgBox($MB_SYSTEMMODAL, "Excel UDF: Lagre excelfil", "SUKSESS  saving  workbook")
 	EndIf
 
 	;TODO - sjekker antall rader
 	Local $l_iUsedRowsCount = $g_oWorkbook.Sheets(1).UsedRange.Rows.Count
 	If ($l_iUsedRowsCount < 15) Then
-		MsgBox($MB_SYSTEMMODAL, "Ikke nok datapunkter", "Filen har for få datapunkter. Avslutter.")
+		If $g_sChosenLanguage = "Norsk" Then
+			MsgBox($MB_SYSTEMMODAL, "Ikke nok datapunkter", "Filen har for få datapunkter. Avslutter.")
+		Else
+			MsgBox($MB_SYSTEMMODAL, "Not enough data points", "The file does not have enough data points. Terminating.")
+		EndIf
+
 		ProgressOff()
 		$g_iProgressCounter = 0
 		Return 0
 	EndIf
 
 	Local $l_iUsedColumnsCount = $g_oWorkbook.Sheets(1).UsedRange.Columns.Count
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Finner kolonner for tid og puls")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Finner kolonner for tid og puls")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Finding columns for time and heart rate")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 
@@ -2379,24 +2600,35 @@ Func OnCreateExcel()
 
 	;MsgBox($MB_SYSTEMMODAL, "Checking column L header","Content of column L: " & $l_sContentOfColumnL)
 	If StringCompare($l_sContentOfColumnL, "ns1:Time") =0 Then
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & _
-			".xlsx"& @CRLF &" ", "Fant tid i kolonne L")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Fant tid i kolonne L")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Found time in column L")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 		;MsgBox($MB_SYSTEMMODAL, "Success", "Found Time content in column L " )
 		$l_sColumnOfDateTime = "L"
 		$l_iColumnOfDateTime = _Excel_ColumnToNumber($l_sColumnOfDateTime)
 	ElseIf  StringCompare($l_sContentOfColumnK, "ns1:Time") =0 Then
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & _
-			".xlsx"& @CRLF &" ", "Fant tid i kolonne k")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Fant TID i kolonne K")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Found TIME in column K")
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 		;MsgBox($MB_SYSTEMMODAL, "Success", "Found Time content in column K " )
 		$l_sColumnOfDateTime = "K"
 		$l_iColumnOfDateTime = _Excel_ColumnToNumber($l_sColumnOfDateTime)
 	Else
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName &_
-			".xlsx"& @CRLF &" ", "Venter på manuell input av tidskolonne")
-		$g_iProgressCounter = $g_iProgressCounter + 1
-		$l_sColumnOfDateTime = InputBox("DATO / TID", "Skriv inn kolonnen der DATO/TID befinner seg", "", " M3")
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName &	".xlsx"& @CRLF &" ", "Venter på manuell input av TIDskolonne")
+			$g_iProgressCounter = $g_iProgressCounter + 1
+			$l_sColumnOfDateTime = InputBox("DATO / TID", "Skriv inn kolonnen der DATO/TID befinner seg", "", " M3")
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: "  & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Waiting for manual input: Column letter for TIME column")
+			$g_iProgressCounter = $g_iProgressCounter + 1
+			$l_sColumnOfDateTime = InputBox("DATE / TIME", "Write the letter for the column where DATE/TIME is found", "", " M3")
+		EndIf
 	EndIf
 
 	$l_iColumnOfPulse = $l_iColumnOfDateTime +1
@@ -2407,41 +2639,28 @@ Func OnCreateExcel()
 
 
 	If StringCompare($l_sContentOfColumnAfterTime, "ns1:Value5") =0 Then
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & _
-			".xlsx"& @CRLF &" ", "Fant puls i kolonne "& $l_sColumnOfPulse)
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Fant PULS i kolonne "& $l_sColumnOfPulse)
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Found HEART RATE in column "& $l_sColumnOfPulse)
+		EndIf
 		$g_iProgressCounter = $g_iProgressCounter + 1
 		;MsgBox($MB_SYSTEMMODAL, "Success", "Found PULSE content in column " &$l_sColumnOfPulse )
 	Else
-		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & _
-			".xlsx"& @CRLF & " ", "Venter på manuell input av pulskolonne")
-		$g_iProgressCounter = $g_iProgressCounter + 1
-		$l_sColumnOfPulse = InputBox("PULS", "Skriv inn kolonnen der PULS befinner seg", "", " M3") ;, -1, -1, 0,0)
+		If $g_sChosenLanguage = "Norsk" Then
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF & " ", "Venter på manuell input av PULSkolonne")
+			$g_iProgressCounter = $g_iProgressCounter + 1
+			$l_sColumnOfPulse = InputBox("PULS", "Skriv inn kolonnen der PULS befinner seg", "", " M3") ;, -1, -1, 0,0)
+		Else
+			ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Name of workbook: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Waiting for manual input: Column letter for HEART RATE column")
+			$g_iProgressCounter = $g_iProgressCounter + 1
+			$l_sColumnOfPulse = InputBox("HEART RATE", "Write the letter for the column where HEART RATE is found", "", " M3") ;, -1, -1, 0,0)
+		EndIf
 	EndIf
 
 	$l_iColumnOfDateTime = _Excel_ColumnToNumber($l_sColumnOfDateTime)
 	$l_iColumnOfPulse = _Excel_ColumnToNumber($l_sColumnOfPulse)
 
-
-	;debug
-; 	MsgBox($MB_SYSTEMMODAL, "Success", "Found TID content in column " & $l_sColumnOfDateTime & " med nummer " &$l_iColumnOfDateTime & @CRLF & "Found PULS content in column " & $l_sColumnOfPulse & " med nummer " &$l_iColumnOfPulse)
-
-;~ 	MsgBox(0, "DEBUG", " Avslutter omforming")
-
-;~ 	ProgressOff()
-;~ 	$g_iProgressCounter = 0
-;~ 	Return 0
-
-	;debug end
-
-	;Local $l_sColumnOfDateTime = InputBox("DATO / TID", "Skriv inn kolonnen der DATO/TID befinner seg", "", " M3")
-	;Local $l_iColumnOfDateTime = _Excel_ColumnToNumber($l_sColumnOfDateTime)
-	;ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Navn til arbeidsbok: " & @CRLF & $g_sCurrentFileName & ".xlsx"& @CRLF &" ", "Venter på manuell input av pulskolonne")
-	;$g_iProgressCounter = $g_iProgressCounter + 1
-
-	;Local $l_sColumnOfPulse = InputBox("PULS", "Skriv inn kolonnen der PULS befinner seg", "", " M3") ;, -1, -1, 0,0)
-	;Local $l_iColumnOfPulse = _Excel_ColumnToNumber($l_sColumnOfPulse)
-	;ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Rydder i Excel-fil")
-	;$g_iProgressCounter = $g_iProgressCounter + 1
 
 	Local $l_iFirstColumnToRemove
 	If $l_iColumnOfPulse > $l_iColumnOfDateTime Then
@@ -2451,30 +2670,26 @@ Func OnCreateExcel()
 			$l_iColumnOfPulse = $l_iColumnOfDateTime + 1
 			$l_sColumnOfPulse = _Excel_ColumnToLetter($l_iColumnOfPulse)
 		EndIf
-		;MsgBox(0, "Fjernet mellom", "")
+
 		$l_iFirstColumnToRemove = $l_iColumnOfPulse + 1
 		If $l_iUsedColumnsCount > $l_iFirstColumnToRemove Then
 			_Excel_RangeDelete($g_oWorkbook.Worksheets(1), _Excel_ColumnToLetter($l_iFirstColumnToRemove) & ":" & _Excel_ColumnToLetter($l_iUsedColumnsCount))
 		EndIf
-		; MsgBox(0, "Fjernet etter", "")
+
 		If $l_iColumnOfDateTime > 1 Then
 			_Excel_RangeDelete($g_oWorkbook.Worksheets(1), "A:" & _Excel_ColumnToLetter($l_iColumnOfDateTime - 1))
 		EndIf
-		;MsgBox(0, "Fjernet før", "")
+
 	Else
-		MsgBox(0, "Feil rekkefølge", "PULS KOMMER FØR DATO TID!! Avslutter omforming")
+		If $g_sChosenLanguage = "Norsk" Then
+			MsgBox(0, "Feil rekkefølge", "PULS KOMMER FØR DATO TID!! Avslutter omforming")
+		Else
+			MsgBox(0, "Wrong order", "HEART RATE PLACED BEFORE DATE/TIME!! Terminating transforma")
+		EndIf
 
 		ProgressOff()
 		$g_iProgressCounter = 0
 		Return 0
-
-;~ 	  $l_iFirstColumnToRemove = $l_iColumnOfDateTime +1
-;~ 	  IF $l_iUsedColumnsCount > $l_iFirstColumnToRemove Then
-;~ 		 _Excel_RangeDelete ($g_oWorkbook.Worksheets(1), _Excel_ColumnToLetter($l_iFirstColumnToRemove)& ":"& _Excel_ColumnToLetter($l_iUsedColumnsCount))
-;~ 	  EndIf
-;~ 	  If $l_iColumnOfPulse > 1 Then
-;~ 		 _Excel_RangeDelete ($g_oWorkbook.Worksheets(1), "A:"& _Excel_ColumnToLetter($l_iColumnOfPulse-1))
-;~ 	  EndIf
 	EndIf
 
 
@@ -2500,7 +2715,11 @@ Func OnCreateExcel()
 
 	EndIf
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Splitter tid og dato", "Rydder i Excel-fil")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Splitter tid og dato", "Rydder i Excel-fil")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Splitting time and date", "Rearranging Excel file")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 
@@ -2521,18 +2740,34 @@ Func OnCreateExcel()
 		.TextToColumns(Default, Default, Default, Default, False, False, False, False, True, "Z", Default, Default, Default, Default)
 	EndWith
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Dato", "A1")
-	; Insert 1 columns before colum Minutt on the active worksheet
-	_Excel_RangeInsert($g_oWorkbook.Worksheets($g_sNameOfSheet_5_CalculationsMainGraph), "C:C", Default, Default)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "=B" & $g_iS5FirstContentRow & "+" & "'" & $g_sNameOfSheet_2_Observations & "'!$" & _Excel_ColumnToLetter($g_iS2HourCorrectionInputColumn) & "$" & $g_iS2HourCorrectionRow, "C" & $g_iS5FirstContentRow)
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Time", "B1")
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Korrigert Time", "C1")
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Minutt", "D1")
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Sekund", "E1")
+	If $g_sChosenLanguage = "Norsk" Then
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Dato", "A1")
+		; Insert 1 columns before colum Minutt on the active worksheet
+		_Excel_RangeInsert($g_oWorkbook.Worksheets($g_sNameOfSheet_5_CalculationsMainGraph), "C:C", Default, Default)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "=B" & $g_iS5FirstContentRow & "+" & "'" & $g_sNameOfSheet_2_Observations & "'!$" & _Excel_ColumnToLetter($g_iS2HourCorrectionInputColumn) & "$" & $g_iS2HourCorrectionRow, "C" & $g_iS5FirstContentRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Time", "B1")
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Korrigert Time", "C1")
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Minutt", "D1")
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Sekund", "E1")
+	Else
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Date", "A1")
+		; Insert 1 columns before colum Minutt on the active worksheet
+		_Excel_RangeInsert($g_oWorkbook.Worksheets($g_sNameOfSheet_5_CalculationsMainGraph), "C:C", Default, Default)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "=B" & $g_iS5FirstContentRow & "+" & "'" & $g_sNameOfSheet_2_Observations & "'!$" & _Excel_ColumnToLetter($g_iS2HourCorrectionInputColumn) & "$" & $g_iS2HourCorrectionRow, "C" & $g_iS5FirstContentRow)
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Hour", "B1")
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Corrected Hour", "C1")
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Minute", "D1")
+		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Seconds", "E1")
+	EndIf
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $g_sS5CorrectedTimeForMainTable_ColumnName, "F1")
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $g_sS5PulseForMainTable_ColumnName, "G1")
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Korrigerer tid", "Rydder i Excel-fil")
+
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Korrigerer tid", "Rydder i Excel-fil")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Correcting time", "Rearranging Excel file")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Range("B:E").NumberFormat = "0"
@@ -2543,8 +2778,13 @@ Func OnCreateExcel()
 	Local $l_bDeleteTopRows = True
 	Local $l_iLastRowToDelete = -1
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Fjerner tomme rader", "Rydder i Excel-fil")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Fjerner tomme rader", "Rydder i Excel-fil")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Removing empty rows", "Rearranging Excel file")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
+
 	While $l_bDeleteTopRows
 		_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "=MATCH(TRUE;INDEX(G" & $g_iS5FirstContentRow & ":G" & $g_iS5FirstContentRow + 99 & "<>0;);0)", "K" & $g_iS5FirstContentRow)
 
@@ -2571,12 +2811,20 @@ Func OnCreateExcel()
 
 
 	;Find number of trackpoints
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Antall datapunkter: ", "Beregner datapunkter")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Antall datapunkter: ", "Beregner datapunkter")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Number of data points: ", "Calculating data points")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	Local $xlup = -4162
 	Local $l_iNumberOfTrackpoints = $g_oWorkbook.Worksheets($g_sNameOfSheet_5_CalculationsMainGraph).Range("B65536").End($xlup).Row - 1
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Antall datapunkter: " & $l_iNumberOfTrackpoints, "Beregner datapunkter")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Antall datapunkter: " & $l_iNumberOfTrackpoints, "Beregner datapunkter")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Number of data points:" & $l_iNumberOfTrackpoints, "Calculating data points")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 
@@ -2604,7 +2852,11 @@ Func OnCreateExcel()
 	$g_iS5LastSecondIntervalRow = $g_iS5FirstContentRow + $g_iNumberOfSeconds - 1
 	Local $l_iNumberOfExtraRowsForSeconds = $g_iS5LastSecondIntervalRow - $g_iS5LastContentRow
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager sekundkolonne", "Oppdaterer tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager sekundkolonne", "Oppdaterer tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making seconds column", "Updating table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	;Creating Seconds table with autotable
 
@@ -2632,45 +2884,77 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_SecondInterval) & $g_iS5FirstContentRow)
 
 	$g_oExcel.Application.AutoCorrect.AutoFillFormulasInLists = True
-	;TODO FORMAT TIME COLUMN
-	;$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Range($l_sSecondsRange).NumberFormat = "[$-x-systime]h:mm:ss AM/PM"
-	;$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Range($l_sSecondsRange).NumberFormat = "*13:55:50"
+
 
 	;Creating header for longGraphTable
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager kolonner for hovedgraf", "Oppdaterer tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager kolonner for hovedgraf", "Oppdaterer tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making columns for main graph", "Updating table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $g_sS5TimeForLongGraph_ColumnName, _Excel_ColumnToLetter($g_iS5Column_TimeForLongGraph) & $g_iS5MainHeaderRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $g_sS5PulseForLongGraph_ColumnName, _Excel_ColumnToLetter($g_iS5Column_PulseForLongGraph) & $g_iS5MainHeaderRow)
 
 	;Creating header for shortGraphTable
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager kolonner for kortgraf", "Oppdaterer tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager kolonner for kortgraf", "Oppdaterer tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making columns for short graph", "Updating table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $g_sS5TimeForShortGraph_ColumnName, _Excel_ColumnToLetter($g_iS5Column_TimeForShortGraph) & $g_iS5MainHeaderRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $g_sS5PulseForShortGraph_ColumnName, _Excel_ColumnToLetter($g_iS5Column_PulseForShortGraph) & $g_iS5MainHeaderRow)
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabeller for beskrivelse "& @CR & "av aktiviteter og hendelser", "Lager ark " & $g_sNameOfSheet_1_Descriptions)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabeller for beskrivelse "& @CR & "av aktiviteter og hendelser", "Lager ark " & $g_sNameOfSheet_1_Descriptions)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making tables for descriptions "& @CR & "of activities and events", "Making sheet " & $g_sNameOfSheet_1_Descriptions)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Fill_Sheet_1_Descriptions()
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer tabeller for beskrivelse "& @CR & "av aktiviteter og hendelser", "Lager ark " & $g_sNameOfSheet_1_Descriptions)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer tabeller for beskrivelse "& @CR & "av aktiviteter og hendelser", "Lager ark " & $g_sNameOfSheet_1_Descriptions)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formatting tables for descriptions "& @CR & "of activities and events", "Making sheet " & $g_sNameOfSheet_1_Descriptions)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Format_Sheet_1_Descriptions()
 
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabeller for observasjoner", "Lager ark " & $g_sNameOfSheet_2_Observations)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabeller for observasjoner", "Lager ark " & $g_sNameOfSheet_2_Observations)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making tables for observations", "Making sheet " & $g_sNameOfSheet_2_Observations)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Fill_Sheet_2_Observations($l_iNumberOfTrackpoints)
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer tabeller for observasjoner", "Formaterer ark " & $g_sNameOfSheet_2_Observations)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer tabeller for observasjoner", "Formaterer ark " & $g_sNameOfSheet_2_Observations)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formatting tables for observations", "Making sheet " & $g_sNameOfSheet_2_Observations)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Format_Sheet_2_Observations()
 
 
 	;Create activityTable for long graph on sheet 5 for chart
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for aktivitet i hovedgraf", "Lager tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for aktivitet i hovedgraf", "Lager tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making table for activities in main graph", "Making table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Hovedgraf", _Excel_ColumnToLetter($g_iS5Activity_ForLong_HeaderColumn)&"1")
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1 = "Hovedgraf"
+	Else
+		$l_sTextContainter1 = "Main graph"
+	EndIf
+
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Activity_ForLong_HeaderColumn)&"1")
 	$l_iCntr = 0
 	Local $l_iActivityTableWidth = 3
 	Local $l_iActivityTableHeight = $g_iNumberOfActivities*($g_iS5Activity_ForLong_NumberOfRowsInSubTable)
@@ -2696,7 +2980,11 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_aActivityArray, _Excel_ColumnToLetter($g_iS5Activity_ForLong_TimeColumn) & $g_iS5Activity_ForLong_FirstHeaderRow)
 
 	;Create eventTable for long graph on sheet 5 for chart
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for hendelser i hovedgraf", "Lager tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for hendelser i hovedgraf", "Lager tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making table for events in main graph", "Making table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	$l_iCntr = 0
@@ -2725,9 +3013,19 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_aEventArray, _Excel_ColumnToLetter($g_iS5Event_ForLong_TimeColumn) & $g_iS5Event_ForLong_FirstHeaderRow)
 
 	;Create activityTable for short graph on sheet 5 for chart
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for aktivitet i utdragsgraf", "Lager tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for aktivitet i utdragsgraf", "Lager tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making table for activities in graph selection", "Making table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Utdragsgraf", _Excel_ColumnToLetter($g_iS5Activity_ForShort_HeaderColumn)&"1")
+
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1 = "Utdragsgraf"
+	Else
+		$l_sTextContainter1 = "Selection graph"
+	EndIf
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Activity_ForShort_HeaderColumn)&"1")
 	$l_iCntr = 0
 	$l_iActivityTableWidth = 3
 	$l_iActivityTableHeight = $g_iNumberOfActivities*($g_iS5Activity_ForShort_NumberOfRowsInSubTable)
@@ -2752,7 +3050,11 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_aActivityArray, _Excel_ColumnToLetter($g_iS5Activity_ForShort_TimeColumn) & $g_iS5Activity_ForShort_FirstHeaderRow)
 
 	;Create eventTable for short graph on sheet 5 for chart
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for hendelser i utdragsgraf", "Lager tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Lager tabell for hendelser i utdragsgraf", "Lager tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Making table for events in graph selection", "Making table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	$l_iCntr = 0
@@ -2781,24 +3083,45 @@ Func OnCreateExcel()
 
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_aEventArray, _Excel_ColumnToLetter($g_iS5Event_ForShort_TimeColumn) & $g_iS5Event_ForShort_FirstHeaderRow)
 
-
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger ut sammendrag for graf", "Lager ark " & $g_sNameOfSheet_3_GraphMain)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger ut sammendrag for graf", "Lager ark " & $g_sNameOfSheet_3_GraphMain)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Creating graph summary", "Making sheet " & $g_sNameOfSheet_3_GraphMain)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Fill_Sheet_3_MainGraph()
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer sammendrag for graf", "Lager ark " & $g_sNameOfSheet_3_GraphMain)
+
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer sammendrag for graf", "Lager ark " & $g_sNameOfSheet_3_GraphMain)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formatting graph summary", "Making sheet " & $g_sNameOfSheet_3_GraphMain)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Format_Sheet_3_MainGraph()
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger ut sammendrag for graf", "Lager ark " & $g_sNameOfSheet_4_GraphSelection)
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger ut sammendrag for graf", "Lager ark " & $g_sNameOfSheet_4_GraphSelection)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Creating graph summary", "Making sheet " & $g_sNameOfSheet_4_GraphSelection)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Fill_Sheet_4_GraphSelection()
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer sammendrag for graf", "Lager ark " & $g_sNameOfSheet_4_GraphSelection)
+
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formaterer sammendrag for graf", "Lager ark " & $g_sNameOfSheet_4_GraphSelection)
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Formatting graph summary", "Making sheet " & $g_sNameOfSheet_4_GraphSelection)
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Format_Sheet_4_GraphSelection()
 
 
 	;Creating longGraphTable
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Fyller kolonner for hovedgraf"& @CR & "For store filer kan dette ta lang tid", "Oppdaterer tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Fyller kolonner for hovedgraf"& @CR & "For store filer kan dette ta lang tid", "Oppdaterer tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Filling columns for main graph"& @CR & "For large files this can take some time", "Updating table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
 	Local $l_sLongGraphRange = _Excel_ColumnToLetter($g_iS5Column_TimeForLongGraph) & $g_iS5MainHeaderRow & ":" & _Excel_ColumnToLetter($g_iS5Column_PulseForLongGraph) & $g_iS5LastSecondIntervalRow
@@ -2812,11 +3135,6 @@ Func OnCreateExcel()
 	;$l_sFormula = "=$" & _Excel_ColumnToLetter($g_iS5Column_TimeForLongGraph) & "$" & $g_iS5FirstContentRow & "+TIME(0;0;ROW(" & _Excel_ColumnToLetter($g_iS5Column_TimeForLongGraph) & $g_iS5FirstContentRow + 1 & ")-ROW($" & _Excel_ColumnToLetter($g_iS5Column_TimeForLongGraph) & "$" & $g_iS5FirstContentRow & "))"
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_TimeForLongGraph) & $g_iS5FirstContentRow)
 
-
-	;$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Range($g_sS5LongGraphTable_Name&"["&$g_sS5TimeForLongGraph_ColumnName&"]").NumberFormat = "*13:55:50"
-	;$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Range($l_sLongGraphRange).NumberFormat = "[$-x-systime]h:mm:ss AM/PM"
-	;$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Range($l_sLongGraphRange).NumberFormat = "*13:55:50"
-
 	;$l_sFormula = "=VLOOKUP([@["&$g_sS5TimeForLongGraph_ColumnName&"]];"&$g_sS5MainTable_Name&"[[#All];["&$g_sS5CorrectedTimeForMainTable_ColumnName&"]:["&$g_sS5PulseForMainTable_ColumnName&"]];2)"
 	$l_sFormula = "=IF(ISBLANK(VLOOKUP([@["&$g_sS5TimeForLongGraph_ColumnName&"]];"&$g_sS5MainTable_Name&"[[#All];["&$g_sS5CorrectedTimeForMainTable_ColumnName&"]:["&$g_sS5PulseForMainTable_ColumnName&"]];2));NA();" & _
 		"VLOOKUP([@["&$g_sS5TimeForLongGraph_ColumnName&"]];"&$g_sS5MainTable_Name&"[[#All];["&$g_sS5CorrectedTimeForMainTable_ColumnName&"]:["&$g_sS5PulseForMainTable_ColumnName&"]];2))"
@@ -2825,7 +3143,11 @@ Func OnCreateExcel()
 
 
  	;Creating shortGraphTable
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Fyller kolonner for kortgraf"& @CR & "For store filer kan dette ta lang tid", "Oppdaterer tabell")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Fyller kolonner for kortgraf"& @CR & "For store filer kan dette ta lang tid", "Oppdaterer tabell")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Filling columns for selection graph"& @CR & "For large files this can take some time", "Updating table")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 
  	Local $l_sShortGraphRange = _Excel_ColumnToLetter($g_iS5Column_TimeForShortGraph) & $g_iS5MainHeaderRow & ":" & _Excel_ColumnToLetter($g_iS5Column_PulseForShortGraph) & $g_iS5LastSecondIntervalRow
@@ -2851,9 +3173,12 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_PulseForShortGraph) & $g_iS5FirstContentRow)
 
 
-
 	Sleep(1000)
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Lagrer arbeidsbok")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Lagrer arbeidsbok")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Saving workbook")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	$l_iResult = _Excel_BookSave($g_oWorkbook)
 	If @error Then
@@ -2863,9 +3188,16 @@ Func OnCreateExcel()
 	EndIf
 
 	;Insert Average, standard deviation above long graph table
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Sammendrag hovedgraf", _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphSummary_Header)
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Sammendrag hovedgraf"
+		$l_sTextContainter2  = "Gjennomsnitt"
+	Else
+		$l_sTextContainter1  = "Summary main graph"
+		$l_sTextContainter2  = "Average"
+	EndIf
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphSummary_Header)
 	;Average:   =AVERAGEIF(LongGraphTable[Puls lang graf];"<>#N/A")
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Gjennomsnitt", _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphAverage_Header)
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter2, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphAverage_Header)
 	Local $l_sLongPulseRange = "$"& _Excel_ColumnToLetter($g_iS5Column_PulseForLongGraph) & "$"& $g_iS5FirstContentRow &":$" & _Excel_ColumnToLetter($g_iS5Column_PulseForLongGraph) & "$"& $g_iS5LastSecondIntervalRow
 	;$l_sFormula =  "=AVERAGEIF("&$g_sS5LongGraphTable_Name &"[" & $g_sS5PulseForLongGraph_ColumnName & "];"& Chr(34) &"<>#N/A"&Chr(34)&")"
 	$l_sFormula =  "=AVERAGEIF("&$l_sLongPulseRange  & ";"& Chr(34) &"<>#N/A"&Chr(34)&")"
@@ -2876,7 +3208,14 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphAverage_LastValue)
 
  	;STDEV.P: =AGGREGATE( 8;6;LongGraphTable[Puls lang graf])
- 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Gjennomsnitt pluss ett standardavvik", _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphOneStDev_Header)
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Gjennomsnitt pluss ett standardavvik"
+		$l_sTextContainter2  = "Gjennomsnitt pluss to standardavvik"
+	Else
+		$l_sTextContainter1  = "Average plus one st.dev"
+		$l_sTextContainter2  = "Average plus two st.dev"
+	EndIf
+ 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphOneStDev_Header)
  ;	_Excel_ColumnToLetter($g_iS5Column_Info_LongGraph_OneStDev) & $g_iS5Row_LongGraph_OneStDev)
  	;$l_sFormula = "=AGGREGATE( 8;6;" & $g_sS5LongGraphTable_Name &"[" & $g_sS5PulseForLongGraph_ColumnName & "]) + " &_Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Value) & $g_iS5Row_LongGraphOneStDev_FirstValue
 	$l_sFormula = "=AGGREGATE( 8;6;"&$l_sLongPulseRange  & ") + " &_Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Value) & $g_iS5Row_LongGraphAverage_FirstValue
@@ -2887,7 +3226,7 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphOneStDev_LastValue)
 
  	;2*STDEV.P: =AGGREGATE( 8;6;LongGraphTable[Puls lang graf])
- 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Gjennomsnitt pluss to standardavvik", _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphTwoStDev_Header)
+ 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter2, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphTwoStDev_Header)
  ;	_Excel_ColumnToLetter($g_iS5Column_Info_LongGraph_TwoStDev) & $g_iS5Row_LongGraph_TwoStDev)
  	;$l_sFormula = "=AGGREGATE( 8;6;" & $g_sS5LongGraphTable_Name &"[" & $g_sS5PulseForLongGraph_ColumnName & "]) + " &_Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Value) & $g_iS5Row_LongGraphTwoStDev_FirstValue
 	$l_sFormula = "=2*AGGREGATE( 8;6;"&$l_sLongPulseRange  & ") + " &_Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Value) & $g_iS5Row_LongGraphAverage_FirstValue
@@ -2898,9 +3237,16 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_LongGraphSummary_Header) & $g_iS5Row_LongGraphTwoStDev_LastValue)
 
 	;Insert Average, standard deviation above Short graph table
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Sammendrag utdragsgraf", _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphSummary_Header)
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Sammendrag utdragsgraf"
+		$l_sTextContainter2  = "Gjennomsnitt"
+	Else
+		$l_sTextContainter1  = "Summary main graph"
+		$l_sTextContainter2  = "Average"
+	EndIf
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphSummary_Header)
 	;Average:   =AVERAGEIF(ShortGraphTable[Puls lang graf];"<>#N/A")
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Gjennomsnitt", _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphAverage_Header)
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter2, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphAverage_Header)
 	Local $l_sShortPulseRange = "$"& _Excel_ColumnToLetter($g_iS5Column_PulseForShortGraph) & "$"& $g_iS5FirstContentRow &":$" & _Excel_ColumnToLetter($g_iS5Column_PulseForShortGraph) & "$"& $g_iS5LastSecondIntervalRow
 	;$l_sFormula =  "=AVERAGEIF("&$g_sS5ShortGraphTable_Name &"[" & $g_sS5PulseForShortGraph_ColumnName & "];"& Chr(34) &"<>#N/A"&Chr(34)&")"
 	$l_sFormula =  "=AVERAGEIF("&$l_sShortPulseRange  & ";"& Chr(34) &"<>#N/A"&Chr(34)&")"
@@ -2911,7 +3257,14 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphAverage_LastValue)
 
  	;STDEV.P: =AGGREGATE( 8;6;ShortGraphTable[Puls lang graf])
- 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Gjennomsnitt pluss ett standardavvik", _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphOneStDev_Header)
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Gjennomsnitt pluss ett standardavvik"
+		$l_sTextContainter2  = "Gjennomsnitt pluss to standardavvik"
+	Else
+		$l_sTextContainter1  = "Average plus one st.dev"
+		$l_sTextContainter2  = "Average plus two st.dev"
+	EndIf
+ 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphOneStDev_Header)
  ;	_Excel_ColumnToLetter($g_iS5Column_Info_ShortGraph_OneStDev) & $g_iS5Row_ShortGraph_OneStDev)
  	;$l_sFormula = "=AGGREGATE( 8;6;" & $g_sS5ShortGraphTable_Name &"[" & $g_sS5PulseForShortGraph_ColumnName & "]) + " &_Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value) & $g_iS5Row_ShortGraphOneStDev_FirstValue
 	$l_sFormula = "=AGGREGATE( 8;6;"&$l_sShortPulseRange  & ") + " &_Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value) & $g_iS5Row_ShortGraphAverage_FirstValue
@@ -2922,7 +3275,7 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphOneStDev_LastValue)
 
  	;2*STDEV.P: =AGGREGATE( 8;6;ShortGraphTable[Puls lang graf])
- 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Gjennomsnitt pluss to standardavvik", _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphTwoStDev_Header)
+ 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter2, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphTwoStDev_Header)
  ;	_Excel_ColumnToLetter($g_iS5Column_Info_ShortGraph_TwoStDev) & $g_iS5Row_ShortGraph_TwoStDev)
  	;$l_sFormula = "=AGGREGATE( 8;6;" & $g_sS5ShortGraphTable_Name &"[" & $g_sS5PulseForShortGraph_ColumnName & "]) + " &_Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value) & $g_iS5Row_ShortGraphTwoStDev_FirstValue
 	$l_sFormula = "=2*AGGREGATE( 8;6;"&$l_sShortPulseRange  & ") + " &_Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value) & $g_iS5Row_ShortGraphAverage_FirstValue
@@ -2933,13 +3286,20 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphTwoStDev_LastValue)
 
 	;Inserting constants for shortgraph calculations
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Første gyldige rad", _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphFirstValidRow)
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Første gyldige rad"
+		$l_sTextContainter2  = "Første gyldige celle"
+	Else
+		$l_sTextContainter1  = "First valid row"
+		$l_sTextContainter2  = "First valid cell"
+	EndIf
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter1, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphFirstValidRow)
 	;$l_sFormula = "=MATCH('"&$g_sNameOfSheet_4_GraphSelection&"'!D3;I7:I2350)+ ROW(I7)-1"
 	$l_sFormula = "=MATCH('"&$g_sNameOfSheet_4_GraphSelection&"'!"& _Excel_ColumnToLetter($g_iS4GraphTimeSelectionFromColumn) & $g_iS4GraphTimeSelectionRow &";"& _
 		_Excel_ColumnToLetter($g_iS5Column_SecondInterval) & $g_iS5FirstContentRow&":"&_Excel_ColumnToLetter($g_iS5Column_SecondInterval) & $g_iS5LastSecondIntervalRow&")+ "&$g_iS5FirstContentRow&"-1"
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value) & $g_iS5Row_ShortGraphFirstValidRow)
 
-	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, "Første gyldige celle", _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphFirstValidCell)
+	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sTextContainter2, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Header) & $g_iS5Row_ShortGraphFirstValidCell)
  	$l_sFormula = "=" & Chr(34) & _Excel_ColumnToLetter($g_iS5Column_SecondInterval) & Chr(34) & "&" & _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value)&$g_iS5Row_ShortGraphFirstValidRow 	;Chr(34) = "
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_5_CalculationsMainGraph, $l_sFormula, _Excel_ColumnToLetter($g_iS5Column_ShortGraphSummary_Value) & $g_iS5Row_ShortGraphFirstValidCell)
 
@@ -2971,11 +3331,19 @@ Func OnCreateExcel()
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_4_GraphSelection, $l_sFirstTimeString, _Excel_ColumnToLetter($g_iS4GraphTimeSelectionFromColumn) & $g_iS4GraphTimeSelectionRow)
 	_Excel_RangeWrite($g_oWorkbook, $g_sNameOfSheet_4_GraphSelection, $l_sLastTimeString, _Excel_ColumnToLetter($g_iS4GraphTimeSelectionToColumn) & $g_iS4GraphTimeSelectionRow)
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger ut graf", "Lager ark " & $g_sNameOfSheet_3_GraphMain)
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Legger ut graf"
+		$l_sTextContainter2  = "Lager ark "
+	Else
+		$l_sTextContainter1  = "Creating graph"
+		$l_sTextContainter2  = "Making sheet "
+	EndIf
+
+	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), $l_sTextContainter1, $l_sTextContainter2 & $g_sNameOfSheet_3_GraphMain)
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Add_MainGraph_To_Sheet_2()
 
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "Legger ut graf", "Lager ark " & $g_sNameOfSheet_4_GraphSelection)
+	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), $l_sTextContainter1, $l_sTextContainter2 & $g_sNameOfSheet_4_GraphSelection)
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	_Add_SelectionGraph_To_Sheet_3()
 
@@ -2984,7 +3352,11 @@ Func OnCreateExcel()
 	$g_oWorkbook.Sheets($g_sNameOfSheet_5_CalculationsMainGraph).Columns($g_iS5Column_SecondInterval).NumberFormat = "[$-x-systime]h:mm:ss AM/PM"
 
 	Sleep(1000)
-	ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Lagrer arbeidsbok")
+	If $g_sChosenLanguage = "Norsk" Then
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Lagrer arbeidsbok")
+	Else
+		ProgressSet(100 * (Round(($g_iProgressCounter + 1) / $g_iProgressMaxCount, 2)), "", "Saving workbook")
+	EndIf
 	$g_iProgressCounter = $g_iProgressCounter + 1
 	$l_iResult = _Excel_BookSave($g_oWorkbook)
 	If @error Then
@@ -2999,7 +3371,14 @@ Func OnCreateExcel()
 	;MsgBox(0, "Progress", $g_iProgressCounter)
 	ProgressOff()
 	$g_iProgressCounter = 0
-	MsgBox($MB_SYSTEMMODAL, "Ferdig", "Omforming er ferdig. Du kan velge å omgjøre en ny fil eller du kan avslutte programmet." &@CRLF&@CRLF &"Hvis du velger å omgjøre en ny fil bør du lukke alle åpne Excel-filer før du starter")
+	If $g_sChosenLanguage = "Norsk" Then
+		$l_sTextContainter1  = "Ferdig"
+		$l_sTextContainter2  = "Omforming er ferdig. Du kan velge å omgjøre en ny fil eller du kan avslutte programmet." &@CRLF&@CRLF &"Hvis du velger å omgjøre en ny fil bør du lukke alle åpne Excel-filer før du starter"
+	Else
+		$l_sTextContainter1  = "Finished"
+		$l_sTextContainter2  = "Transforming completed. You can choose to transform a new file or close the program." &@CRLF&@CRLF &"If you choose to transform a new file you should close all open Excel files before beginning transformation"
+	EndIf
+	MsgBox($MB_SYSTEMMODAL, $l_sTextContainter1, $l_sTextContainter2)
 	Return 1
 EndFunc   ;==>OnCreateExcel
 
@@ -3046,7 +3425,11 @@ Func _TransformFile($l_oInputFile, $l_oOutputFile)
 	Local $l_sRunString = $l_sCMD & '"' & $l_oInputFile & '"' & $l_sOutputParameters & '"' & $l_oOutputFile & '"'
 	RunWait($l_sRunString, "", @SW_SHOWDEFAULT)
 	If FileExists($l_oOutputFile) = 0 Then
-		MsgBox($MB_SYSTEMMODAL, "Feil", "Noe gikk galt under opprettelse av filen." & @CRLF & $l_oOutputFile & "Vennligst kontroller at valgt filnavn og bane er korrekt.")
+		If $g_sChosenLanguage = "Norsk" Then
+			MsgBox($MB_SYSTEMMODAL, "Feil", "Noe gikk galt under opprettelse av filen." & @CRLF & $l_oOutputFile & "Vennligst kontroller at valgt filnavn og bane er korrekt.")
+		Else
+			MsgBox($MB_SYSTEMMODAL, "Error", "Something went wrong when creating the file." & @CRLF & $l_oOutputFile & "Please check that the given file name and path are correct.")
+		EndIf
 	Else
 		;MsgBox($MB_SYSTEMMODAL, "Vellykket omforming", "Filen "& @CRLF&$l_oFile& @CRLF&" er nå opprettet")
 	EndIf
